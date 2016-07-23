@@ -14,7 +14,7 @@ namespace GuessingGame
     {
         public Form1()
         {
-           // InitializeComponent();
+          // InitializeComponent();
             MessageAssignment();
             startGame();
         }
