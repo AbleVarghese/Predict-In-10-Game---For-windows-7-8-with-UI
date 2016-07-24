@@ -61,7 +61,7 @@ namespace GuessingGame
             while (lives > 0)
             {
 
-                //Human Number picking
+                 //Human Number picking
                 Console.Write("Enter your number: ");
                 this.pickNumber = Convert.ToInt32(Console.ReadLine());
 
