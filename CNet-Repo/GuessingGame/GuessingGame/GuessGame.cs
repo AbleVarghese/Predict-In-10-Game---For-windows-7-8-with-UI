@@ -6,154 +6,99 @@ using System.Threading.Tasks;
 
 namespace GuessingGame
 {
-
     class GuessGame
     {
-        private int randomVar;
-        private Dictionary<String, String> GGString = new Dictionary<string, string>();
-        private Dictionary<String, int> GGInt = new Dictionary<string, int>();
-        private Random random = new Random();
-        int pickNumber;
+        private Dictionary<string, string> GGString;
+        private Dictionary<string, int> GGInt;
+        private Random random;
 
+        private int numberToGuess;
+        private int fromNumber;
+        private int toNumber;
 
-        public void MessageAssignment()
+        public GuessGame(int fromNumber, int toNumber)
         {
+            GGString = new Dictionary<string, string>();
+            GGInt = new Dictionary<string, int>();
+            random = new Random();
+            this.fromNumber = fromNumber;
+            this.toNumber = toNumber;
+            InitializeMessageDic();
+            ResetGame();
+        }
 
-            this.GGString.Add("startGame", "start the game");
+        public string GetMessage(string messageType)
+        {
+            if (!GGString.ContainsKey(messageType))
+            {
+                throw new ArgumentException();
+            }
+            return GGString[messageType];
+        }
+
+        public int GetScore()
+        {
+            return GGInt["score"];
+        }
+
+        public int GetLivesNumber()
+        {
+            return GGInt["lives"];
+        }
+
+        private void InitializeMessageDic()
+        {
+            this.GGString.Clear();
+            this.GGString.Add("startGame", "Start the Game");
             this.GGString.Add("failMessage", "sorry game over");
             this.GGString.Add("winMessage", "CONGRATULATIONS YOU WON THE GAME");
             this.GGString.Add("infMessage", "Number provided is less than the number picked by the program,... Please try again!.");
             this.GGString.Add("supMessage", "Number provided is greater than the number picked by the program,... Please try again!.");
             this.GGString.Add("PlayAgainMessage", "Would you like to play again? Y/N.");
+        }
 
+        public void ResetGame()
+        {
+            this.GGInt.Clear();
             this.GGInt.Add("score", 100);
             this.GGInt.Add("lives", 10);
-
+            this.numberToGuess = this.random.Next(this.fromNumber, this.toNumber);
         }
 
-        public int startGame()
+        public GuessResult CheckGuess(int userGuess)
         {
-
-
-            int marker = 0;
-            int score;
-            int lives = 10;
-            String playAgain = "NULL";
-            String printValue0;
-            String printValue1;
-            String printValue2;
-            String printValue3;
-
-
-            Console.WriteLine("#######################################################");
-
-            GGString.TryGetValue("startGame", out printValue0);
-            Console.WriteLine("\n" + printValue0);
-
-            //System Number picking
-            this.randomVar = this.random.Next(1, 100);
-            Console.WriteLine("random number is {0}", randomVar);
-
-
-
-
-
-            while (lives > 0)
+            if (GGInt["lives"] <= 0 || GGInt["score"] <= 0)
             {
+                throw new ApplicationException();
+            }
 
-                 //Human Number picking
-                Console.Write("Enter your number: ");
-                this.pickNumber = Convert.ToInt32(Console.ReadLine());
-
-                if (pickNumber < randomVar)
-                {
-
-                    GGString.TryGetValue("infMessage", out printValue1);
-                    Console.WriteLine("\n" + printValue1);
-                    GGInt["score"] -= 10;
-                    GGInt["lives"] -= 1;
-
-                    GGInt.TryGetValue("score", out score);
-                    GGInt.TryGetValue("lives", out lives);
-
-                    Console.WriteLine("\nCurrent Score: {0}\nRemaining Lives:{1}", score, lives);
-                    Console.WriteLine("\n#######################################################\n");
-
-
-
-                }
-                else if (pickNumber > randomVar)
-                {
-
-                    GGString.TryGetValue("supMessage", out printValue2);
-                    Console.WriteLine("\nThe output is {0}", printValue2);
-
-                    GGInt["score"] -= 10;
-                    GGInt["lives"] -= 1;
-
-                    GGInt.TryGetValue("score", out score);
-                    GGInt.TryGetValue("lives", out lives);
-
-                    Console.WriteLine("\nCurrent Score: {0}\nRemaining Lives:{1}", score, lives);
-                    Console.WriteLine("\n#######################################################\n");
-
-
-
-                }
-
-                else if (pickNumber == randomVar)
-                {
-
-
-                    GGString.TryGetValue("winMessage", out printValue3);
-                    Console.WriteLine("\nThe output is {0}", printValue3);
-
-                    GGInt.TryGetValue("score", out score);
-                    GGInt.TryGetValue("lives", out lives);
-
-                    Console.WriteLine("\nCurrent Score: {0}\nRemaining Lives:{1}", score, lives);
-                    Console.WriteLine("\n#######################################################\n");
-
-                    // Play again message
-                    String play;
-                    GGString.TryGetValue("playAgain", out play);
-                    Console.WriteLine("\n" + play);
-
-                    Console.WriteLine("\nWould you like to play again? Y/N\n");
-                    playAgain = Console.ReadLine();
-                    if (playAgain == "Y" || playAgain == "y")
-                        marker = 0;
-                    else
-                        marker = 1;
-
-
-
-                    return (marker);
-
-
-                }
-
-                else
-                {
-                    Console.WriteLine("Wrong Input");
-                }
-
-
-            }//while
-
-
-            String failedMessage;
-            GGString.TryGetValue("failMessage", out failedMessage);
-            Console.WriteLine("\n*************************" + failedMessage + "*************************");
-            Console.ReadLine();
-            return (1);
-
-
-
-
+            GuessResult result;
+            if (userGuess < numberToGuess)
+            {
+                GGInt["score"] -= 10;
+                GGInt["lives"] -= 1;
+                result = GuessResult.LESS_THAN_NUMBER;
+            }
+            else if (userGuess > numberToGuess)
+            {
+                GGInt["score"] -= 10;
+                GGInt["lives"] -= 1;
+                result = GuessResult.GREATER_THAN_NUMBER;
+            }
+            else
+            {
+                result = GuessResult.EQUALS_TO_NUMBER;
+            }
+            return result;
         }
 
-
+        public bool HasMoreLives()
+        {
+            return GGInt["lives"] > 0;
+        }
     }
-
+    enum GuessResult
+    {
+        LESS_THAN_NUMBER, GREATER_THAN_NUMBER, EQUALS_TO_NUMBER
+    }
 }
